@@ -28,23 +28,19 @@ of Gevent_. As with the rest of the monkey patch subsystem the process is fairly
 __ monkey_
 
 1. Identify all places where blocking occurs and where it may stall the loop.
-
 2. If blocking occurs on a file descriptor (`FD`), try to convert the file descriptor from blocking to non-blocking
    (sockets/pipes/fifos, sometimes even files where, rarely, appropriate) and replace blocking IO functions with their
    gevent_ non-blocking equivalents.
-
 3. If blocking occurs in a Python/OS primitive that does not support non-blocking access and thus cannot be geventized,
    wrap all blocking access to that primitive with native thread-pool-based wrappers and call it a day (while fully
    understanding that primitive access latency will increase and raw performance may suffer as a result).
-
 4. If you are really brave and have lots of free time on your hands, completely replace a standard blocking Python
-   non-`FD`-based Python primitive with implementation based on an `FD`-based OS primitive (e.g. POSIX semaphore =>
+   non-`FD`-based primitive with implementation based on an `FD`-based OS primitive (e.g. POSIX semaphore =>
    Linux `eventfd-based semaphore for kernels > 2.6.30`__).
-
-__ eventfd_
-
 5. Due to launching of separate processes in `MP`, figure out how, when, and whether to `monkey patch`__ spawned/forked
    children and grandchildren.
+
+__ eventfd_
 
 __ monkey_
 
