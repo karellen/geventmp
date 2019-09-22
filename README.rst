@@ -65,14 +65,14 @@ Once installed, `geventmp`_ will activate by default in the below stanza.
 
 .. code-block:: python
 
-   from monkey import patch_all
+   from gevent.monkey import patch_all
    patch_all()
 
 If you would like `geventmp`_ to not activate by default, either do not install it or explicitly disable it:
 
 .. code-block:: python
 
-   from monkey import patch_all
+   from gevent.monkey import patch_all
    patch_all(geventmp=False)
 
 That's it - there are no other flags, settings, properties or config values so far.
