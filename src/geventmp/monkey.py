@@ -139,7 +139,7 @@ def _patch_mp(will_patch_all):
             _patch_module("_mp.3._mp_sem_tracker", _patch_module=True, _package_prefix='geventmp.')
             _patch_module("_mp.3._mp_forkserver", _patch_module=True, _package_prefix='geventmp.')
         else:
-            _mp = import_module("gevent._mp.2_7.__mp")
+            _mp = import_module("geventmp._mp.2_7.__mp")
             _patch_module("_mp.2_7._mp_synchronize", _patch_module=True, _package_prefix='geventmp.')
 
             sys.modules["__multiprocessing"] = sys.modules["_multiprocessing"]
