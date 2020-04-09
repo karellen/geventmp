@@ -3,6 +3,7 @@ from importlib import import_module
 
 from gevent.monkey import __call_module_hook, _notify_patch, saved, _NONE
 
+
 def patch_item(module, attr, newitem, _patch_module=False):
     olditem = getattr(module, attr, _NONE)
     if olditem is not _NONE:
@@ -136,8 +137,12 @@ def _patch_mp(will_patch_all):
             _patch_module("_mp.3._mp_util", _patch_module=True, _package_prefix='geventmp.')
             _patch_module("_mp.3._mp_connection", _patch_module=True, _package_prefix='geventmp.')
             _patch_module("_mp.3._mp_synchronize", _patch_module=True, _package_prefix='geventmp.')
-            _patch_module("_mp.3._mp_sem_tracker", _patch_module=True, _package_prefix='geventmp.')
             _patch_module("_mp.3._mp_forkserver", _patch_module=True, _package_prefix='geventmp.')
+            if sys.version_info >= (3, 8):
+                # See https://bugs.python.org/issue36867
+                _patch_module("_mp.3._mp_resource_tracker", _patch_module=True, _package_prefix='geventmp.')
+            else:
+                _patch_module("_mp.3._mp_sem_tracker", _patch_module=True, _package_prefix='geventmp.')
         else:
             _mp = import_module("geventmp._mp.2_7.__mp")
             _patch_module("_mp.2_7._mp_synchronize", _patch_module=True, _package_prefix='geventmp.')
