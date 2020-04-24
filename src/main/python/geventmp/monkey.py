@@ -1,7 +1,31 @@
+#   -*- coding: utf-8 -*-
+#   Copyright 2019 Karellen, Inc. and contributors
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
 import sys
 from importlib import import_module
 
+import gevent
+import pkg_resources
 from gevent.monkey import __call_module_hook, _notify_patch, saved, _NONE
+
+GEVENT_PRE_15a3 = False
+GEVENT_SAVED_MODULE_SETTINGS = "_gevent_saved_patch_all_module_settings"
+gevent_ver = pkg_resources.parse_version(gevent.__version__)
+if gevent_ver < pkg_resources.parse_version("1.5a3"):
+    GEVENT_PRE_15a3 = True
+    GEVENT_SAVED_MODULE_SETTINGS = "_gevent_saved_patch_all"
 
 
 def patch_item(module, attr, newitem, _patch_module=False):
@@ -154,5 +178,4 @@ def _patch_mp(will_patch_all):
                 mod = import_module(mod_name)
                 mod._multiprocessing = _mp
 
-        if geventmp_arg is not None:
-            saved["_gevent_saved_patch_all"] = geventmp_arg
+        saved[GEVENT_SAVED_MODULE_SETTINGS]["geventmp"] = True
