@@ -1,3 +1,18 @@
+#   -*- coding: utf-8 -*-
+#   Copyright 2019 Karellen, Inc. and contributors
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
 from __future__ import print_function
 
 from multiprocessing.process import current_process
@@ -15,7 +30,7 @@ from gevent import spawn
 
 try:
     from unittest import skipIf
-except:
+except ImportError:
     def _id(obj):
         return obj
 
@@ -39,6 +54,14 @@ PY3_SKIP = (PY3, "Not applicable to Python 3")
 
 
 class TestMonkey(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from logging import DEBUG
+        from multiprocessing.util import log_to_stderr, get_logger
+
+        log_to_stderr(DEBUG)
+        cls.logger = get_logger()
+
     def setUp(self):
         self.tearDown()
 
@@ -53,7 +76,7 @@ class TestMonkey(TestCase):
         self.run_test_mp_queues_py2()
 
     @skipIf(*PY3_SKIP)
-    def test_mp_no_args_fork(self):
+    def test_mp_no_args_fork_v3(self):
         self.run_test_mp_no_args_py2()
 
     @skipIf(*PY2_SKIP)
@@ -69,7 +92,7 @@ class TestMonkey(TestCase):
         self.run_test_mp_queues("forkserver")
 
     @skipIf(*PY2_SKIP)
-    def test_mp_no_args_fork(self):
+    def test_mp_no_args_fork_py2(self):
         self.run_test_mp_no_args("fork")
 
     @skipIf(*PY2_SKIP)
@@ -115,7 +138,7 @@ class TestMonkey(TestCase):
         self.assertGreater(async_counter[0], 200)
 
     def run_test_mp_queues_py2(self, do_trace=False):
-        mp.log_to_stderr(1)
+        # mp.log_to_stderr(1)
         r_q = mp.Queue()
         w_q = mp.Queue()
         p = mp.Process(target=_mp_test.test_queues, args=(w_q, r_q))

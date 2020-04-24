@@ -1,0 +1,49 @@
+language: c
+dist: bionic
+addons:
+  apt_packages:
+    - pandoc
+branches:
+  only:
+    - master
+    - doc/sphinxdoc
+    - 0.11
+os:
+  - linux
+  - osx
+#  - windows
+osx_image: xcode11.3
+env:
+  jobs:
+    - PYTHON_VERSION="3.8.2"
+    - PYTHON_VERSION="2.7.17"
+    - PYTHON_VERSION="3.7.6"
+    - PYTHON_VERSION="3.6.8"
+    - PYTHON_VERSION="3.5.4"
+    - PYTHON_VERSION="pypy3.6-7.3.0"
+    - PYTHON_VERSION="pypy2.7-7.3.0"
+    - PYTHON_VERSION="pypy3.5-7.0.0"
+  global:
+    - DEPLOY_BRANCHES: "'master'"
+    - DEPLOY_PYTHONS: "'2.7.17 3.8.2'"
+    - DEPLOY_OSES: "'linux'"
+    - PYB_ARGS: "'-E ci -v -X analyze install'"
+    - TWINE_USERNAME: "__token__"
+    - secure: "B8bZJPaWYeSLuMOhaKO+H3KBw/bjON7OOHBYhJFPcZ2HBTd6vJyD915UANUcJgnFUIHreWe1KL7AXXvd6JdAvFZvyxNOsIMxBpvBpv/HBnWVnDP3GzAaBU5ZqfhBDY4igyQBw3W3JoKDcnxTtysf3Qb6Chi7luU1oA4JRzqH7HzVHcTXVYYXz7XV4X64B0U6W+mEy9FMfvMnON3DwPRIy66O+BgiutKjFR8dhBKw79XaP0ff+YpUREvvG+IoAHH+N1ugT2sUQpqCfJx6ORxscvvPXTTt+DmqM1YmKU9i18Z9gS2clC66UZqF4Yyo5GDVtCFqZwnIyhhQPflxlb0aXIuEWeHok8Xc2Z0GSLMXEuq5MyjCz+TEC+xrA9X92RLQrK0412HM66WZ6nM++AnAqbA7aDcLsZJ6Rk1gz5tAR3nKAW9c4mrlnMG1ILMGTsxEz9NUj2omIyF5M6k8hwLkOjz42rOC/h7MbRqsupmU4SyJ949vGHnmm0LE16wDFvjyz6u/ntx3A2WO/EVNiStJFRz6pPFkX80muRE6SlrNjMxJDZxzd2FTu3Dr3m9o1WB66gy5DCAZP1H0FpDl52GSj5BNPR3XgpRzWyArojCRtYQU0V/k+98gJwRCFSRSrj6HMHooc/4INXGks4UStoAljj75nq6GeKWk+iZrozkp+Ws="
+jobs:
+  exclude:
+    - os: windows
+      env: PYTHON_VERSION="pypy2.7-7.3.0"
+    - os: windows
+      env: PYTHON_VERSION="pypy3.5-7.0.0"
+    - os: windows
+      env: PYTHON_VERSION="pypy3.6-7.3.0"
+  allow_failures:
+    - if: env(PYTHON_VERSION) =~ /^pypy.+$/
+
+cache:
+  directories:
+    - $HOME/.pyenv
+
+install: travis_wait 30 python travis/travis_shim.py install
+script: travis_wait 60 python travis/travis_shim.py build
