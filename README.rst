@@ -2,6 +2,36 @@
  Multiprocessing extension for Gevent_ (geventmp_)
 ==================================================
 
+.. image:: https://img.shields.io/gitter/room/karellen/Lobby?logo=gitter
+   :target: https://gitter.im/karellen/Lobby
+   :alt: Gitter
+.. image:: https://img.shields.io/travis/karellen/geventmp/master?logo=travis
+   :target: https://travis-ci.org/karellen/geventmp
+   :alt: Build Status
+.. image:: https://img.shields.io/coveralls/github/karellen/geventmp/master?logo=coveralls
+   :target: https://coveralls.io/r/karellen/geventmp?branch=master
+   :alt: Coverage Status
+
+|
+
+.. image:: https://img.shields.io/pypi/v/geventmp?logo=pypi
+   :target: https://pypi.org/project/geventmp/
+   :alt: GeventMP Version
+.. image:: https://img.shields.io/pypi/pyversions/geventmp?logo=pypi
+   :target: https://pypi.org/project/geventmp/
+   :alt: GeventMP Python Versions
+.. image:: https://img.shields.io/pypi/dd/geventmp?logo=pypi
+   :target: https://pypi.org/project/geventmp/
+   :alt: GeventMP Downloads Per Day
+.. image:: https://img.shields.io/pypi/dw/geventmp?logo=pypi
+   :target: https://pypi.org/project/geventmp/
+   :alt: GeventMP Downloads Per Week
+.. image:: https://img.shields.io/pypi/dm/geventmp?logo=pypi
+   :target: https://pypi.org/project/geventmp/
+   :alt: GeventMP Downloads Per Month
+
+|
+
 .. warning::
     HIC SUNT DRACONES!!!
 
