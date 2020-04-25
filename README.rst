@@ -83,17 +83,18 @@ Supported Platforms
 .. note::
     All claims of support may not be real at all. You're welcome to experiment. See warnings on top.
 
-* Linux, possibly Darwin.
-* CPython 2.7, 3.5, 3.6, 3.7... maybe.
+* Linux and Darwin.
+* CPython 2.7, 3.5, 3.6, 3.7, 3.8.
+
+Known Issues
+============
+
+* Multiprocessing `forkserver` works with gevent, but the spawned child isn't green.
 
 TODO
 ====
-1. Implement CI/CD once we figure out how `Gevent Issue #1448 <https://github.com/gevent/gevent/issues/1448>`_ is going
-   to go.
-2. Test on CPython 2.7, 3.5, 3.6, 3.7, 3.8, PyPys etc.
-3. Monkey patch Windows to the extent possible.
-4. Test and fix Darwin if required.
-5. Lots of applications use `Billiard <https://github.com/celery/billiard>`_ for multiprocessing instead of stock Python
+1. Monkey patch Windows to the extent possible.
+2. Lots of applications use `Billiard <https://github.com/celery/billiard>`_ for multiprocessing instead of stock Python
    package. Consider monkey patching Billiard if detected.
 
 Contact Us
