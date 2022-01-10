@@ -13,8 +13,6 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-from __future__ import print_function
-
 from multiprocessing.process import current_process
 
 from gevent import monkey
@@ -22,32 +20,12 @@ from gevent import monkey
 if not getattr(current_process(), "_inheriting", False):
     monkey.patch_all()
 
-from unittest import TestCase, main, skip
+from unittest import TestCase, main
 import trace
 
-from time import sleep
+from time import sleep, monotonic as clock
 from gevent import spawn
 from gevent.util import assert_switches
-
-try:
-    from time import monotonic as clock
-except ImportError:
-    from time import clock
-
-try:
-    from unittest import skipIf
-except ImportError:
-    def _id(obj):
-        return obj
-
-
-    def skipIf(condition, reason):
-        """
-        Skip a test if the condition is true.
-        """
-        if condition:
-            return skip(reason)
-        return _id
 
 from geventmp.monkey import GEVENT_SAVED_MODULE_SETTINGS
 
@@ -55,11 +33,6 @@ import multiprocessing as mp
 import _mp_test_gevent
 import _mp_test
 import sys
-
-PY2 = sys.version_info[0] == 2
-PY3 = sys.version_info[0] == 3
-PY2_SKIP = (PY2, "Not applicable to Python 2")
-PY3_SKIP = (PY3, "Not applicable to Python 3")
 
 
 class TestMonkey(TestCase):
@@ -74,44 +47,23 @@ class TestMonkey(TestCase):
         print("=====================")
         sys.stdout.flush()
 
-    @skipIf(*PY3_SKIP)
-    def test_mp_queues(self):
-        self.run_test_mp_queues_py2(_mp_test_gevent.test_queues)
-
-    @skipIf(*PY3_SKIP)
-    def test_mp_no_args_fork_v2(self):
-        self.run_test_mp_no_args_py2(_mp_test_gevent.test_no_args)
-
-    @skipIf(*PY2_SKIP)
     def test_mp_queues_fork(self):
         self.run_test_mp_queues("fork", _mp_test_gevent.test_queues)
 
-    @skipIf(*PY2_SKIP)
     def test_mp_queues_spawn(self):
         self.run_test_mp_queues("spawn", _mp_test_gevent.test_queues)
 
-    @skipIf(*PY2_SKIP)
     def test_mp_queues_forkserver(self):
         self.run_test_mp_queues("forkserver", _mp_test.test_queues)
 
-    @skipIf(*PY2_SKIP)
     def test_mp_no_args_fork(self):
         self.run_test_mp_no_args("fork", _mp_test_gevent.test_no_args)
 
-    @skipIf(*PY2_SKIP)
     def test_mp_no_args_spawn(self):
         self.run_test_mp_no_args("spawn", _mp_test_gevent.test_no_args)
 
-    @skipIf(*PY2_SKIP)
     def test_mp_no_args_forkserver(self):
         self.run_test_mp_no_args("forkserver", _mp_test.test_no_args)
-
-    def run_test_mp_no_args_py2(self, func, do_trace=False):
-        p = mp.Process(target=func)
-        if do_trace:
-            trace.Trace(count=0).runfunc(self._test_mp_no_args, p)
-        else:
-            self._test_mp_no_args(p)
 
     def run_test_mp_no_args(self, context, func, do_trace=False):
         ctx = mp.get_context(context)
@@ -147,16 +99,6 @@ class TestMonkey(TestCase):
         self.assertEqual(p.exitcode, 10)
         print("Async counter counted to %d" % async_counter[0])
         self.assertGreater(async_counter[0], 0)
-
-    def run_test_mp_queues_py2(self, func, do_trace=False):
-        # mp.log_to_stderr(1)
-        r_q = mp.Queue()
-        w_q = mp.Queue()
-        p = mp.Process(target=func, args=(w_q, r_q))
-        if do_trace:
-            trace.Trace(count=0).runfunc(self._test_mp_queues, p, r_q, w_q)
-        else:
-            self._test_mp_queues(p, r_q, w_q)
 
     def run_test_mp_queues(self, context, func, do_trace=False):
         ctx = mp.get_context(context)

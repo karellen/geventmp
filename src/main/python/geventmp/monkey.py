@@ -156,26 +156,15 @@ def _patch_module(name,
 def _patch_mp(will_patch_all):
     geventmp_arg = will_patch_all.will_patch_module("geventmp")
     if geventmp_arg is None or geventmp_arg:
-        if sys.version_info[0] == 3:
-            _patch_module("_mp.3._mp_spawn", _patch_module=True, _package_prefix='geventmp.')
-            _patch_module("_mp.3._mp_util", _patch_module=True, _package_prefix='geventmp.')
-            _patch_module("_mp.3._mp_connection", _patch_module=True, _package_prefix='geventmp.')
-            _patch_module("_mp.3._mp_synchronize", _patch_module=True, _package_prefix='geventmp.')
-            _patch_module("_mp.3._mp_forkserver", _patch_module=True, _package_prefix='geventmp.')
-            if sys.version_info >= (3, 8):
-                # See https://bugs.python.org/issue36867
-                _patch_module("_mp.3._mp_resource_tracker", _patch_module=True, _package_prefix='geventmp.')
-            else:
-                _patch_module("_mp.3._mp_sem_tracker", _patch_module=True, _package_prefix='geventmp.')
+        _patch_module("_mp.3._mp_spawn", _patch_module=True, _package_prefix='geventmp.')
+        _patch_module("_mp.3._mp_util", _patch_module=True, _package_prefix='geventmp.')
+        _patch_module("_mp.3._mp_connection", _patch_module=True, _package_prefix='geventmp.')
+        _patch_module("_mp.3._mp_synchronize", _patch_module=True, _package_prefix='geventmp.')
+        _patch_module("_mp.3._mp_forkserver", _patch_module=True, _package_prefix='geventmp.')
+        if sys.version_info >= (3, 8):
+            # See https://bugs.python.org/issue36867
+            _patch_module("_mp.3._mp_resource_tracker", _patch_module=True, _package_prefix='geventmp.')
         else:
-            _mp = import_module("geventmp._mp.2_7.__mp")
-            _patch_module("_mp.2_7._mp_synchronize", _patch_module=True, _package_prefix='geventmp.')
-
-            sys.modules["__multiprocessing"] = sys.modules["_multiprocessing"]
-            sys.modules["_multiprocessing"] = _mp
-            for mod_name in ("multiprocessing.connection", "multiprocessing.heap",
-                             "multiprocessing.queues", "multiprocessing.reduction"):
-                mod = import_module(mod_name)
-                mod._multiprocessing = _mp
+            _patch_module("_mp.3._mp_sem_tracker", _patch_module=True, _package_prefix='geventmp.')
 
         saved[GEVENT_SAVED_MODULE_SETTINGS]["geventmp"] = True
