@@ -160,6 +160,8 @@ def _patch_mp(will_patch_all):
         _patch_module("_mp.3._mp_util", _patch_module=True, _package_prefix='geventmp.')
         _patch_module("_mp.3._mp_connection", _patch_module=True, _package_prefix='geventmp.')
         _patch_module("_mp.3._mp_synchronize", _patch_module=True, _package_prefix='geventmp.')
+        _patch_module("_mp.3._mp_popen_fork", _patch_module=True, _package_prefix='geventmp.')
+        _patch_module("_mp.3._mp_popen_spawn_posix", _patch_module=True, _package_prefix='geventmp.')
         _patch_module("_mp.3._mp_forkserver", _patch_module=True, _package_prefix='geventmp.')
         if sys.version_info >= (3, 8):
             # See https://bugs.python.org/issue36867

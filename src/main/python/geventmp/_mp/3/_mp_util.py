@@ -13,7 +13,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-from gevent.hub import _get_hub_noargs as get_hub
+from gevent.os import _watch_child
 from gevent.threading import local
 from multiprocessing.util import spawnv_passfds as _spawnv_passfd, register_after_fork
 
@@ -22,7 +22,9 @@ __target__ = "multiprocessing.util"
 
 
 def spawnv_passfds(path, args, passfds):
-    return get_hub().threadpool.apply(_spawnv_passfd, (path, args, passfds))
+    cpid = _spawnv_passfd(path, args, passfds)
+    _watch_child(cpid)
+    return cpid
 
 
 class ForkAwareLocal(local):
