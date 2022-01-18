@@ -19,6 +19,9 @@ from gevent import monkey
 
 if not getattr(current_process(), "_inheriting", False):
     monkey.patch_all()
+
+    # from multiprocessing.util import log_to_stderr
+    # log_to_stderr(1)
     # from gevent import config
 
     # config.monitor_thread = False
@@ -47,6 +50,8 @@ from multiprocessing.connection import Client
 from multiprocessing.util import get_logger
 import threading
 
+logger = get_logger()
+
 
 class TestSyncManager(TestCase):
     def setUp(self):
@@ -59,16 +64,17 @@ class TestSyncManager(TestCase):
         get_hub().destroy()
         sys.stdout.flush()
         sys.stderr.flush()
-        print("=====================")
+        logger.info("=====================")
         sys.stdout.flush()
+
+    def test_manager_fork(self):
+        self.run_manager_test("fork")
 
     def test_manager_spawn(self):
         self.run_manager_test("spawn")
 
     def run_manager_test(self, context, do_trace=False, remote_trace=False):
         ctx = mp.get_context(context)
-        # ctx.log_to_stderr(1)
-        self.logger = get_logger()
         if do_trace:
             trace.Trace(count=0).runfunc(self._test_manager, ctx, remote_trace)
         else:
@@ -86,7 +92,7 @@ class TestSyncManager(TestCase):
 
         spawn(idle_watcher)
 
-        p.join(60)
+        p.join(300)
         wait(timeout=5)
 
         self.assertFalse(p.is_alive())
@@ -103,16 +109,15 @@ class TestSyncManager(TestCase):
         try:
             with Client(self.addr, "AF_UNIX") as client:
                 queue: Queue = client.recv()
-                self.logger.info(f"**** {thread_name}: received client queue {queue._id}")
-                # queue.empty()
+                logger.info(f"**** {thread_name}: received client queue {queue._id}")
                 # instrument_conn(queue._tls.connection)
 
             while True:
-                self.logger.info(f"**** {thread_name}: receiving data on queue {queue._id}")
+                logger.info(f"**** {thread_name}: receiving data on queue {queue._id}")
                 data = queue.get()
-                self.logger.info(f"**** {thread_name}: received data on queue {queue._id}: {data}")
+                logger.info(f"**** {thread_name}: received data on queue {queue._id}: {data}")
                 queue.task_done()
-                self.logger.info(f"**** {thread_name}: task done on queue {queue._id}: {data}")
+                logger.info(f"**** {thread_name}: task done on queue {queue._id}: {data}")
                 if data is None:
                     return
                 results.append(data)

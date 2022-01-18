@@ -1,5 +1,5 @@
 #   -*- coding: utf-8 -*-
-#   Copyright 2019 Karellen, Inc. and contributors
+#   Copyright 2022 Karellen, Inc. and contributors
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -13,26 +13,18 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-import sys
-from time import sleep
+from gevent.os import make_nonblocking
+from multiprocessing.popen_fork import Popen as _Popen
 
-from multiprocessing.util import get_logger
-
-logger = get_logger()
-
-
-def test_no_args():
-    logger.info(test_no_args.__name__)
-    sleep(1)
-    logger.info("exiting")
-    sys.exit(10)
+__implements__ = ["Popen"]
+__target__ = "multiprocessing.popen_fork"
 
 
-def test_queues(r_q, w_q):
-    sleep(1)
-    logger.info(r_q.get(timeout=5))
-    sleep(1)
-    w_q.put(test_queues.__name__, timeout=5)
-    sleep(1)
-    logger.info("exiting")
-    sys.exit(10)
+class Popen(_Popen):
+    def _launch(self, process_obj):
+        self.sentinel = None
+        try:
+            super()._launch(process_obj)
+        finally:
+            if self.sentinel is not None:
+                make_nonblocking(self.sentinel)

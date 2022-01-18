@@ -1,5 +1,5 @@
 #   -*- coding: utf-8 -*-
-#   Copyright 2019 Karellen, Inc. and contributors
+#   Copyright 2022 Karellen, Inc. and contributors
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -27,9 +27,9 @@ from multiprocessing.util import get_logger
 
 from geventmp.monkey import GEVENT_SAVED_MODULE_SETTINGS
 
-REQUEST_COUNT = 10
-QUEUE_SIZE = 3
-QUEUE_DEPTH = 10
+REQUEST_COUNT = 100
+QUEUE_SIZE = 5
+QUEUE_DEPTH = 100
 
 
 def idle_watcher():
@@ -127,7 +127,7 @@ def _manager_process(addr):
                 for i in range(0, REQUEST_COUNT):
                     spawn(process_conn, listener.accept(), i)
 
-                wait(timeout=60)
+                wait(timeout=300)
                 # logger.warning("\n".join(format_run_info()))
             finally:
                 manager.shutdown()

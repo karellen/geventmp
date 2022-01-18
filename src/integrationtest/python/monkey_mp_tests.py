@@ -20,19 +20,25 @@ from gevent import monkey
 if not getattr(current_process(), "_inheriting", False):
     monkey.patch_all()
 
+    # from multiprocessing.util import log_to_stderr
+    # log_to_stderr(1)
+
 from unittest import TestCase, main
 import trace
 
 from time import sleep, monotonic as clock
-from gevent import spawn
+from gevent import spawn, idle
 from gevent.util import assert_switches
 
 from geventmp.monkey import GEVENT_SAVED_MODULE_SETTINGS
 
 import multiprocessing as mp
+from multiprocessing.util import get_logger
 import _mp_test_gevent
 import _mp_test
 import sys
+
+logger = get_logger()
 
 
 class TestMonkey(TestCase):
@@ -44,7 +50,7 @@ class TestMonkey(TestCase):
     def tearDown(self):
         sys.stdout.flush()
         sys.stderr.flush()
-        print("=====================")
+        logger.info("=====================")
         sys.stdout.flush()
 
     def test_mp_queues_fork(self):
@@ -78,8 +84,9 @@ class TestMonkey(TestCase):
 
         def count():
             while True:
-                sleep(0.01)
+                idle()
                 async_counter[0] += 1
+                sleep(0.001)
 
         task = spawn(count)
         p.start()
@@ -87,22 +94,22 @@ class TestMonkey(TestCase):
 
         with assert_switches():
             start = clock()
-            p.join(5)
+            p.join(15)
             end = clock()
-            print("Waited for child to die for %f" % (end - start))
+            logger.info("Waited for child to die for %f" % (end - start))
         task.kill()
 
         # This is to ensure a greenlet flip
         sleep(0.001)
 
+        logger.info(f"checking {p} is alive")
         self.assertFalse(p.is_alive())
         self.assertEqual(p.exitcode, 10)
-        print("Async counter counted to %d" % async_counter[0])
+        logger.info("Async counter counted to %d" % async_counter[0])
         self.assertGreater(async_counter[0], 0)
 
     def run_test_mp_queues(self, context, func, do_trace=False):
         ctx = mp.get_context(context)
-        # ctx.log_to_stderr(1)
         r_q = ctx.Queue()
         w_q = ctx.Queue()
         p = ctx.Process(target=func, args=(w_q, r_q))
@@ -116,8 +123,9 @@ class TestMonkey(TestCase):
 
         def count():
             while True:
-                sleep(0.01)
+                idle()
                 async_counter[0] += 1
+                sleep(0.001)
 
         task = spawn(count)
 
@@ -129,17 +137,18 @@ class TestMonkey(TestCase):
             self.assertEqual(r_q.get(timeout=5), "test_queues")
         with assert_switches():
             start = clock()
-            p.join(5)
+            p.join(15)
             end = clock()
-            print("Waited for child to die for %f" % (end - start))
+            logger.info("Waited for child to die for %f" % (end - start))
         task.kill()
 
         # This is to ensure a greenlet flip
         sleep(0.001)
 
-        self.assertEqual(p.exitcode, 10)
+        logger.info(f"checking {p} is alive")
         self.assertFalse(p.is_alive())
-        print("Async counter counted to %d" % async_counter[0])
+        self.assertEqual(p.exitcode, 10)
+        logger.info("Async counter counted to %d" % async_counter[0])
         self.assertGreater(async_counter[0], 0)
 
 

@@ -16,12 +16,19 @@
 import sys
 from time import sleep
 
-from gevent import spawn
+from gevent import spawn, monkey
 from gevent.util import assert_switches
+from geventmp.monkey import GEVENT_SAVED_MODULE_SETTINGS
+from multiprocessing.util import get_logger
+
+logger = get_logger()
 
 
 def test_no_args():
-    print(test_no_args.__name__)
+    if not monkey.saved[GEVENT_SAVED_MODULE_SETTINGS].get("geventmp"):
+        raise RuntimeError("GeventMP patch has not run!")
+
+    logger.info(test_no_args.__name__)
 
     def count():
         while True:
@@ -35,6 +42,7 @@ def test_no_args():
 
     task.kill()
 
+    logger.info("exiting")
     sys.exit(10)
 
 
@@ -50,7 +58,7 @@ def test_queues(r_q, w_q):
         sleep(1)
 
     with assert_switches():
-        print(r_q.get(timeout=5))
+        logger.info(r_q.get(timeout=5))
 
     with assert_switches():
         sleep(1)
@@ -62,4 +70,5 @@ def test_queues(r_q, w_q):
         sleep(1)
 
     task.kill()
+    logger.info("exiting")
     sys.exit(10)

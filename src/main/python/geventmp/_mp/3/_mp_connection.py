@@ -14,12 +14,15 @@
 #   limitations under the License.
 
 from io import BytesIO
-from multiprocessing.connection import reduce_connection, _ConnectionBase as __ConnectionBase, Connection as _Connection
+from multiprocessing.connection import (reduce_connection,
+                                        _ConnectionBase as __ConnectionBase,
+                                        Connection as _Connection)
 
 import multiprocessing.reduction
 from gevent.os import make_nonblocking, nb_read, nb_write
+from gevent.selectors import GeventSelector
 
-__implements__ = ["_ConnectionBase", "Connection"]
+__implements__ = ["_ConnectionBase", "Connection", "_WaitSelector"]
 __target__ = "multiprocessing.connection"
 
 
@@ -63,3 +66,4 @@ def dump(obj, file, protocol=None):
 
 # multiprocessing.reduction.dump = dump
 multiprocessing.reduction.register(Connection, reduce_connection)
+_WaitSelector = GeventSelector
