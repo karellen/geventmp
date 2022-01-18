@@ -35,11 +35,15 @@
 .. warning::
     HIC SUNT DRACONES!!!
 
-    This code is extremely experimental (pre-pre-alpha). There is very little testing, lots of things are in flux,
+    This code is experimental (beta). There is some testing, but a lots of things are in flux, and
     some platforms don't work at all.
 
-    DO NOT use in production. This code may crash your server, bankrupt your company, burn your house down and be mean
-    to your puppy. You've been warned.
+    You MAY try to use this in production with the understanding that this is a beta-quality software.
+
+    That said, this code may crash your server, bankrupt your company, burn your house down and be mean
+    to your puppy.
+
+    You've been warned.
 
 Problem
 =======
@@ -114,7 +118,8 @@ Supported Platforms
     All claims of support may not be real at all. You're welcome to experiment. See warnings on top.
 
 * Linux and Darwin.
-* CPython 2.7, 3.5, 3.6, 3.7, 3.8.
+* CPython 3.6, 3.7, 3.8, 3.9, 3.10
+* PyPy 3.7, 3.8
 
 Known Issues
 ============
