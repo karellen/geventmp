@@ -16,8 +16,6 @@
 import sys
 from multiprocessing import spawn, util
 
-from geventmp.monkey import GEVENT_SAVED_MODULE_SETTINGS
-
 __implements__ = ["get_command_line"]
 __target__ = "multiprocessing.spawn"
 
@@ -31,12 +29,19 @@ def get_command_line(**kwds):
                 ['%s=%r' % item for item in kwds.items()])
     else:
         from gevent.monkey import saved
+        from gevent import config
+        from gevent._config import ImportableSetting
+        from geventmp.monkey import GEVENT_SAVED_MODULE_SETTINGS
 
         prog = 'from gevent import monkey; monkey.patch_all(**%r); ' + \
+               'from gevent import config; [setattr(config, k, v) for k, v in %r.items()]; ' + \
                'from multiprocessing.spawn import spawn_main; ' + \
                'spawn_main(%s);'
 
         prog %= (saved[GEVENT_SAVED_MODULE_SETTINGS],
+                 {k: getattr(config, k) for k in dir(config)
+                  if not isinstance(config.settings[k], ImportableSetting)},
                  ', '.join('%s=%r' % item for item in kwds.items()))
+
         opts = util._args_from_interpreter_flags()
         return [spawn._python_exe] + opts + ['-c', prog, '--multiprocessing-fork']

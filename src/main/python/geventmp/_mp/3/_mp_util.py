@@ -13,13 +13,21 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-from multiprocessing.util import spawnv_passfds as _spawnv_passfd
-
 from gevent.hub import _get_hub_noargs as get_hub
+from gevent.threading import local
+from multiprocessing.util import spawnv_passfds as _spawnv_passfd, register_after_fork
 
-__implements__ = ["spawnv_passfds"]
+__implements__ = ["spawnv_passfds", "ForkAwareLocal"]
 __target__ = "multiprocessing.util"
 
 
 def spawnv_passfds(path, args, passfds):
     return get_hub().threadpool.apply(_spawnv_passfd, (path, args, passfds))
+
+
+class ForkAwareLocal(local):
+    def __init__(self):
+        register_after_fork(self, lambda obj: obj.__dict__.clear())
+
+    def __reduce__(self):
+        return type(self), ()
