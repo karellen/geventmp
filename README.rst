@@ -1,6 +1,6 @@
-==================================================
- Multiprocessing extension for Gevent_ (geventmp_)
-==================================================
+===============================================
+ GeventMP_ - Gevent_ Multiprocessing Extension
+===============================================
 
 .. image:: https://img.shields.io/gitter/room/karellen/Lobby?logo=gitter
    :target: https://gitter.im/karellen/Lobby
@@ -56,8 +56,8 @@ __ monkey_
 
 Solution
 ========
-Geventmp_ (`Gee-vent Em-Pee`, not `Gee-ven Tee-Em-Pee`) is an extension plugin for `monkey patch`__ subsystem
-of Gevent_. As with the rest of the monkey patch subsystem the process is fairly clear:
+GeventMP_ (`Gee-vent Em-Pee`) is a gevent_ multiprocessing extension plugin for the `monkey-patching`__ subsystem.
+As with the rest of the monkey patch subsystem the process is fairly clear:
 
 __ monkey_
 
@@ -71,7 +71,7 @@ __ monkey_
 4. If you are really brave and have lots of free time on your hands, completely replace a standard blocking Python
    non-`FD`-based primitive with implementation based on an `FD`-based OS primitive (e.g. POSIX semaphore =>
    Linux `eventfd-based semaphore for kernels > 2.6.30`__).
-5. Due to launching of separate processes in `MP`, figure out how, when, and whether to `monkey patch`__ spawned/forked
+5. Due to launching of separate processes in `MP`, figure out how, when, and whether to `monkey-patch`__ spawned/forked
    children and grandchildren.
 
 __ eventfd_
@@ -95,14 +95,14 @@ For unstable version:
   pip install --pre geventmp
 
 
-Once installed, `geventmp`_ will activate by default in the below stanza.
+Once installed, `GeventMP`_ will activate by default in the below stanza.
 
 .. code-block:: python
 
    from gevent.monkey import patch_all
    patch_all()
 
-If you would like `geventmp`_ to not activate by default, either do not install it or explicitly disable it:
+If you would like `GeventMP`_ to not activate by default, either do not install it or explicitly disable it:
 
 .. code-block:: python
 
@@ -124,7 +124,7 @@ Supported Platforms
 Known Issues
 ============
 
-* Multiprocessing `forkserver` works with gevent, but the spawned child isn't green.
+* Multiprocessing `forkserver` works in GeventMP_, but the spawned child isn't green.
 
 TODO
 ====
