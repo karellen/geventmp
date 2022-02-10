@@ -25,6 +25,9 @@ jobs:
           - '3.6'
           - 'pypy-3.7'
           - 'pypy-3.8'
+        with-venv:
+          - 'true'
+          - 'false'
     env:
       DEPLOY_PYTHONS: "3.9"
       DEPLOY_OSES: "Linux"
@@ -39,10 +42,16 @@ jobs:
           contains(env.DEPLOY_PYTHONS, matrix.python-version)
         run: |
           echo "PYB_EXTRA_ARGS=+upload" >> $GITHUB_ENV
+      - shell: bash
+        if: |
+          matrix.with-venv == 'false'
+        run: |
+          echo "PYB_EXTRA_ARGS=$PYB_EXTRA_ARGS --no-venvs" >> $GITHUB_ENV
       - uses: pybuilder/build@master
         with:
           python-version: ${{ matrix.python-version }}
           pyb-extra-args: ${{ env.PYB_EXTRA_ARGS }}
+          with-venv: ${{ matrix.with-venv }}
   build-summary:
     if: success() || failure()
     runs-on: ubuntu-latest
