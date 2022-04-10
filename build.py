@@ -25,7 +25,7 @@ use_plugin("python.coveralls")
 use_plugin("copy_resources")
 
 name = "geventmp"
-version = "0.0.3"
+version = "0.0.4.dev"
 
 summary = "Multiprocessing Gevent Extension"
 authors = [Author("Karellen, Inc.", "supervisor@karellen.co")]
