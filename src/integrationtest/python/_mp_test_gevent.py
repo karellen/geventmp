@@ -18,8 +18,9 @@ from time import sleep
 
 from gevent import spawn, monkey
 from gevent.util import assert_switches
-from geventmp.monkey import GEVENT_SAVED_MODULE_SETTINGS
 from multiprocessing.util import get_logger
+
+from geventmp.monkey import GEVENT_SAVED_MODULE_SETTINGS
 
 logger = get_logger()
 
@@ -59,6 +60,37 @@ def test_queues(r_q, w_q):
 
     with assert_switches():
         logger.info(r_q.get(timeout=5))
+
+    with assert_switches():
+        sleep(1)
+
+    with assert_switches():
+        w_q.put(test_queues.__name__, timeout=5)
+
+    with assert_switches():
+        sleep(1)
+
+    task.kill()
+    logger.info("exiting")
+    sys.exit(10)
+
+
+def test_joinable_queues(r_q, w_q):
+    def count():
+        while True:
+            sleep(0.01)
+
+    task = spawn(count)
+    task.start()
+
+    with assert_switches():
+        sleep(1)
+
+    with assert_switches():
+        logger.info(r_q.get(timeout=5))
+
+    with assert_switches():
+        r_q.task_done()
 
     with assert_switches():
         sleep(1)
