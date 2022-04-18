@@ -34,7 +34,6 @@ __implements__ = ["SemLock", "Semaphore", "BoundedSemaphore", "Lock", "RLock"]
 __target__ = "multiprocessing.synchronize"
 
 _BUF_ONE = (1).to_bytes(8, sys.byteorder, signed=False)
-_pid = os.getpid()
 
 
 class SemLockEventFd:
@@ -46,7 +45,7 @@ class SemLockEventFd:
         self._reset()
 
     def _reset(self):
-        self._fd_path = f"/proc/{_pid}/fdinfo/{self.fd}"
+        self._fd_path = f"/proc/{os.getpid()}/fdinfo/{self.fd}"
         self._semlock = self
         self.count = 0
         self.tid = None
