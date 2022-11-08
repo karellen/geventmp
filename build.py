@@ -25,7 +25,7 @@ use_plugin("python.coveralls")
 use_plugin("copy_resources")
 
 name = "geventmp"
-version = "0.0.5"
+version = "0.0.6"
 
 summary = "Multiprocessing Gevent Extension"
 authors = [Author("Karellen, Inc.", "supervisor@karellen.co")]
@@ -77,7 +77,6 @@ def set_properties(project):
 
     project.set_property("distutils_classifiers", [
         "License :: OSI Approved :: Apache Software License",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
