@@ -5,7 +5,7 @@
 .. image:: https://img.shields.io/gitter/room/karellen/Lobby?logo=gitter
    :target: https://gitter.im/karellen/Lobby
    :alt: Gitter
-.. image:: https://img.shields.io/github/workflow/status/karellen/geventmp/geventmp/master
+.. image:: https://img.shields.io/github/actions/workflow/status/karellen/geventmp/build.yml?branch=master
    :target: https://github.com/karellen/geventmp/actions/workflows/build.yml
    :alt: Build Status
 .. image:: https://img.shields.io/coveralls/github/karellen/geventmp/master?logo=coveralls
