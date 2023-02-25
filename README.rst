@@ -3,7 +3,7 @@
 ===============================================
 
 .. image:: https://img.shields.io/gitter/room/karellen/Lobby?logo=gitter
-   :target: https://gitter.im/karellen/Lobby
+   :target: https://app.gitter.im/#/room/#karellen_Lobby:gitter.im
    :alt: Gitter
 .. image:: https://img.shields.io/github/actions/workflow/status/karellen/geventmp/build.yml?branch=master
    :target: https://github.com/karellen/geventmp/actions/workflows/build.yml
