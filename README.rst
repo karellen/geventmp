@@ -118,8 +118,8 @@ Supported Platforms
     All claims of support may not be real at all. You're welcome to experiment. See warnings on top.
 
 * Linux and Darwin.
-* CPython 3.7, 3.8, 3.9, 3.10, 3.11
-* PyPy 3.7, 3.8, 3.9
+* CPython 3.7, 3.8, 3.9, 3.10, 3.11, 3.12
+* PyPy 3.8, 3.9
 
 Known Issues
 ============

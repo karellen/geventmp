@@ -25,7 +25,7 @@ use_plugin("python.coveralls")
 use_plugin("copy_resources")
 
 name = "geventmp"
-version = "0.0.7"
+version = "0.0.8.dev"
 
 summary = "Multiprocessing Gevent Extension"
 authors = [Author("Karellen, Inc.", "supervisor@karellen.co")]
@@ -82,6 +82,7 @@ def set_properties(project):
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
         "Operating System :: MacOS :: MacOS X",
