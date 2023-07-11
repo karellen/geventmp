@@ -18,12 +18,12 @@ jobs:
           # - windows-latest
           # - macos-latest
         python-version:
+          - '3.12-dev'
           - '3.11'
           - '3.10'
           - '3.9'
           - '3.8'
           - '3.7'
-          - 'pypy-3.7'
           - 'pypy-3.8'
           - 'pypy-3.9'
         with-venv:
