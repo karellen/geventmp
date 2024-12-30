@@ -38,7 +38,7 @@ urls = {
 }
 license = "Apache License, Version 2.0"
 
-requires_python = ">3.6"
+requires_python = ">3.8"
 
 default_task = ["analyze", "publish"]
 
