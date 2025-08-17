@@ -72,6 +72,7 @@ def _patch_mp(will_patch_all):
         _patch_module("_mp.3._mp_connection", _package_prefix='geventmp.')
         _patch_module("_mp.3._mp_synchronize", _package_prefix='geventmp.')
         _patch_module("_mp.3._mp_popen_fork", _package_prefix='geventmp.')
+        _patch_module("_mp.3._mp_popen_forkserver", _package_prefix='geventmp.')
         _patch_module("_mp.3._mp_popen_spawn_posix", _package_prefix='geventmp.')
         _patch_module("_mp.3._mp_forkserver", _package_prefix='geventmp.')
         _patch_module("_mp.3._mp_resource_tracker", _package_prefix='geventmp.')

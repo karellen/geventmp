@@ -73,6 +73,9 @@ class TestSyncManager(TestCase):
     def test_manager_spawn(self):
         self.run_manager_test("spawn")
 
+    def test_manager_forkserver(self):
+        self.run_manager_test("forkserver")
+
     def run_manager_test(self, context, do_trace=False, remote_trace=False):
         ctx = mp.get_context(context)
         if do_trace:

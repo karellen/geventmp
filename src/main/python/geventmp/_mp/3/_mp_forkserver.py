@@ -13,14 +13,15 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-import sys
-from multiprocessing.forkserver import ForkServer as _ForkServer
+import os
+import signal
+from multiprocessing.forkserver import ForkServer as _ForkServer, SIGNED_STRUCT
 
 from gevent.os import make_nonblocking, nb_read, nb_write
 
-__implements__ = ["ForkServer", "_forkserver", "ensure_running",
+__implements__ = ["ForkServer", "_forkserver", "ensure_running", "_serve_one",
                   "get_inherited_fds", "connect_to_new_process",
-                  "set_forkserver_preload"]
+                  "set_forkserver_preload", "read_signed", "write_signed"]
 __target__ = "multiprocessing.forkserver"
 
 
@@ -36,54 +37,51 @@ class ForkServer(_ForkServer):
         make_nonblocking(self._forkserver_alive_fd)
 
 
-if sys.version_info[:2] > (3, 6):
-    __implements__ += ["read_signed", "write_signed"]
-
-    from multiprocessing.forkserver import SIGNED_STRUCT
-
-
-    def read_signed(fd):
-        data = b''
-        length = SIGNED_STRUCT.size
-        while len(data) < length:
-            s = nb_read(fd, length - len(data))
-            if not s:
-                raise EOFError('unexpected EOF')
-            data += s
-        return SIGNED_STRUCT.unpack(data)[0]
+def read_signed(fd):
+    data = b''
+    length = SIGNED_STRUCT.size
+    while len(data) < length:
+        s = nb_read(fd, length - len(data))
+        if not s:
+            raise EOFError('unexpected EOF')
+        data += s
+    return SIGNED_STRUCT.unpack(data)[0]
 
 
-    def write_signed(fd, n):
-        msg = SIGNED_STRUCT.pack(n)
-        while msg:
-            nbytes = nb_write(fd, msg)
-            if nbytes == 0:
-                raise RuntimeError('should not get here')
-            msg = msg[nbytes:]
-else:
-    __implements__ += ["read_unsigned", "write_unsigned"]
-
-    from multiprocessing.forkserver import UNSIGNED_STRUCT
+def write_signed(fd, n):
+    msg = SIGNED_STRUCT.pack(n)
+    while msg:
+        nbytes = nb_write(fd, msg)
+        if nbytes == 0:
+            raise RuntimeError('should not get here')
+        msg = msg[nbytes:]
 
 
-    def read_unsigned(fd):
-        data = b''
-        length = UNSIGNED_STRUCT.size
-        while len(data) < length:
-            s = nb_read(fd, length - len(data))
-            if not s:
-                raise EOFError('unexpected EOF')
-            data += s
-        return UNSIGNED_STRUCT.unpack(data)[0]
+def _serve_one(child_r, fds, unused_fds, handlers):
+    from multiprocessing import resource_tracker, spawn
+    # close unnecessary stuff and reset signal handlers
+    signal.set_wakeup_fd(-1)
+    for sig, val in handlers.items():
+        signal.signal(sig, val)
+    for fd in unused_fds:
+        os.close(fd)
 
+    (_forkserver._forkserver_alive_fd,
+     resource_tracker._resource_tracker._fd,
+     *_forkserver._inherited_fds) = fds
+    make_nonblocking(_forkserver._forkserver_alive_fd)
+    make_nonblocking(resource_tracker._resource_tracker._fd)
+    for ifd in _forkserver._inherited_fds:
+        make_nonblocking(ifd)
 
-    def write_unsigned(fd, n):
-        msg = UNSIGNED_STRUCT.pack(n)
-        while msg:
-            nbytes = nb_write(fd, msg)
-            if nbytes == 0:
-                raise RuntimeError('should not get here')
-            msg = msg[nbytes:]
+    # Run process object received over pipe
+    parent_sentinel = os.dup(child_r)
+    make_nonblocking(child_r)
+    make_nonblocking(parent_sentinel)
+    code = spawn._main(child_r, parent_sentinel)
+
+    return code
+
 
 _forkserver = ForkServer()
 ensure_running = _forkserver.ensure_running

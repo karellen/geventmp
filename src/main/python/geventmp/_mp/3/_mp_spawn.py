@@ -28,20 +28,14 @@ def get_command_line(**kwds):
         return ([sys.executable, '--multiprocessing-fork'] +
                 ['%s=%r' % item for item in kwds.items()])
     else:
-        from gevent.monkey import saved
-        from gevent import config
-        from gevent._config import ImportableSetting
-        from geventmp.monkey import GEVENT_SAVED_MODULE_SETTINGS
+        prog, args = util.get_command_line_gevent_preamble()
 
-        prog = 'from gevent import monkey; monkey.patch_all(**%r); ' + \
-               'from gevent import config; [setattr(config, k, v) for k, v in %r.items()]; ' + \
-               'from multiprocessing.spawn import spawn_main; ' + \
-               'spawn_main(%s);'
+        prog += 'from multiprocessing.spawn import spawn_main; ' + \
+                'spawn_main(%s);'
 
-        prog %= (saved[GEVENT_SAVED_MODULE_SETTINGS],
-                 {k: getattr(config, k) for k in dir(config)
-                  if not isinstance(config.settings[k], ImportableSetting)},
-                 ', '.join('%s=%r' % item for item in kwds.items()))
+        args += (', '.join('%s=%r' % item for item in kwds.items()),)
+
+        prog %= args
 
         opts = util._args_from_interpreter_flags()
         return [spawn._python_exe] + opts + ['-c', prog, '--multiprocessing-fork']

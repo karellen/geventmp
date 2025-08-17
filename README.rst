@@ -121,11 +121,6 @@ Supported Platforms
 * CPython 3.9, 3.10, 3.11, 3.12, 3.13
 * PyPy 3.9, 3.10
 
-Known Issues
-============
-
-* Multiprocessing `forkserver` works in GeventMP_, but the spawned child isn't green.
-
 TODO
 ====
 1. Monkey patch Windows to the extent possible.

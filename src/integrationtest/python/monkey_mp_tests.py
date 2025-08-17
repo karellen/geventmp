@@ -59,11 +59,17 @@ class TestMonkey(TestCase):
     def test_mp_queues_spawn(self):
         self.run_test_mp_queues("spawn", _mp_test_gevent.test_queues)
 
+    def test_mp_queues_forkserver(self):
+        self.run_test_mp_queues("forkserver", _mp_test_gevent.test_queues)
+
     def test_mp_jqueues_fork(self):
         self.run_test_mp_jqueues("fork", _mp_test_gevent.test_queues)
 
     def test_mp_jqueues_spawn(self):
         self.run_test_mp_jqueues("spawn", _mp_test_gevent.test_queues)
+
+    def test_mp_jqueues_forkserver(self):
+        self.run_test_mp_jqueues("forkserver", _mp_test_gevent.test_queues)
 
     def test_mp_no_args_fork(self):
         self.run_test_mp_no_args("fork", _mp_test_gevent.test_no_args)

@@ -36,7 +36,7 @@ urls = {
     "Source Code": "https://github.com/karellen/geventmp/",
     "Documentation": "https://github.com/karellen/geventmp/"
 }
-license = "Apache License, Version 2.0"
+license = "Apache-2.0"
 
 requires_python = ">=3.9"
 
@@ -45,7 +45,7 @@ default_task = ["analyze", "publish"]
 
 @init
 def set_properties(project):
-    project.set_property_if_unset("gevent_version", ">=24.10.0")
+    project.set_property_if_unset("gevent_version", ">=25.8.2")
 
     project.depends_on("gevent", project.get_property("gevent_version"))
 
@@ -76,12 +76,12 @@ def set_properties(project):
     })
 
     project.set_property("distutils_classifiers", [
-        "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
         "Operating System :: MacOS :: MacOS X",
