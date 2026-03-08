@@ -30,6 +30,8 @@ jobs:
         with-venv:
           - 'true'
           - 'false'
+    permissions:
+      contents: write
     env:
       DEPLOY_PYTHONS: "3.13"
       DEPLOY_OSES: "Linux"
@@ -38,21 +40,17 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - shell: bash
-        if: |
-          github.event_name == 'push' &&
-          contains(env.DEPLOY_OSES, runner.os) &&
-          contains(env.DEPLOY_PYTHONS, matrix.python-version)
+        if: matrix.with-venv == 'false'
         run: |
-          echo "PYB_EXTRA_ARGS=+upload" >> $GITHUB_ENV
-      - shell: bash
-        if: |
-          matrix.with-venv == 'false'
-        run: |
-          echo "PYB_EXTRA_ARGS=$PYB_EXTRA_ARGS --no-venvs" >> $GITHUB_ENV
+          echo "PYB_EXTRA_ARGS=--no-venvs" >> $GITHUB_ENV
       - uses: pybuilder/build@master
         with:
           python-version: ${{ matrix.python-version }}
           pyb-extra-args: ${{ env.PYB_EXTRA_ARGS }}
+          is-upload: >-
+            ${{ github.event_name == 'push'
+            && contains(env.DEPLOY_OSES, runner.os)
+            && contains(env.DEPLOY_PYTHONS, matrix.python-version) }}
           with-venv: ${{ matrix.with-venv }}
   build-summary:
     if: success() || failure()
