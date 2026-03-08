@@ -38,7 +38,7 @@ urls = {
 }
 license = "Apache-2.0"
 
-requires_python = ">=3.9"
+requires_python = ">=3.10"
 
 default_task = ["analyze", "publish"]
 
@@ -76,14 +76,12 @@ def set_properties(project):
     })
 
     project.set_property("distutils_classifiers", [
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
         "Programming Language :: Python :: 3.14",
         "Programming Language :: Python :: Implementation :: CPython",
-        "Programming Language :: Python :: Implementation :: PyPy",
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: POSIX",
         "Topic :: Internet",
