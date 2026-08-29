@@ -21,6 +21,8 @@ from gevent.threading import local
 __implements__ = ["spawnv_passfds", "ForkAwareLocal", "get_command_line_gevent_preamble"]
 __target__ = "multiprocessing.util"
 
+_FORKSERVER_MAIN = "from multiprocessing.forkserver import main"
+
 
 def get_command_line_gevent_preamble():
     from gevent.monkey import saved
@@ -39,12 +41,21 @@ def get_command_line_gevent_preamble():
 
 
 def spawnv_passfds(path, args, passfds):
-    launch_args = args[2] if len(args) >= 3 else None
-    if launch_args and launch_args.startswith("from multiprocessing.forkserver import main;"):
-        prog, prog_args = get_command_line_gevent_preamble()
-        prog += "%s"
-        launch_args = prog % (prog_args + (launch_args,))
-        args[2] = launch_args
+    # Every CPython that launches a forkserver does so as `[..., "-c", cmd]`, so the
+    # command is whatever directly follows a bare `-c`. Its index is not dependable:
+    # the interpreter flags preceding it vary (`-X -c` even emits a literal `-c` of its
+    # own ahead of the real one), and gh-144503 (3.13.13, 3.14.4, 3.15) both prefixed the
+    # command with `import sys; ` and appended sys.argv after it. Matching on content
+    # alone is not enough either, since `-W` folds its whole filter into a single
+    # argument that may quote the entry point. Failing here would silently leave the
+    # forkserver unpatched, so require both the anchor and the content.
+    for cmd_idx in range(1, len(args)):
+        launch_args = args[cmd_idx]
+        if args[cmd_idx - 1] == "-c" and isinstance(launch_args, str) and _FORKSERVER_MAIN in launch_args:
+            prog, prog_args = get_command_line_gevent_preamble()
+            prog += "%s"
+            args[cmd_idx] = prog % (prog_args + (launch_args,))
+            break
 
     cpid = _spawnv_passfd(path, args, passfds)
     _watch_child(cpid)

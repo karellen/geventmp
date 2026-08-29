@@ -16,6 +16,7 @@
 from pybuilder.core import (use_plugin, init, Author, before, Dependency)
 
 use_plugin("python.core")
+use_plugin("python.unittest")
 use_plugin("python.integrationtest")
 use_plugin("python.flake8")
 use_plugin("python.coverage")
@@ -72,7 +73,8 @@ def set_properties(project):
     project.set_property("distutils_readme_file_encoding", "UTF-8")
 
     project.set_property("distutils_entry_points", {
-        "gevent.plugins.monkey.will_patch_all": ["geventmp = geventmp.monkey:_patch_mp"]
+        "gevent.plugins.monkey.will_patch_all": ["geventmp = geventmp.monkey:_patch_mp"],
+        "gevent.plugins.monkey.did_patch_all": ["geventmp = geventmp.monkey:_patch_mp_done"]
     })
 
     project.set_property("distutils_classifiers", [
@@ -81,6 +83,7 @@ def set_properties(project):
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
         "Programming Language :: Python :: 3.14",
+        "Programming Language :: Python :: 3.15",
         "Programming Language :: Python :: Implementation :: CPython",
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: POSIX",
@@ -89,6 +92,14 @@ def set_properties(project):
         "Intended Audience :: Developers",
         "Development Status :: 4 - Beta"
     ])
+
+
+@before("run_unit_tests", only_once=True)
+def install_deps_for_unit_tests(project, logger, reactor):
+    # Unit tests import gevent directly. With `--no-venvs` PyBuilder never provisions an
+    # environment, so nothing has installed the runtime dependencies by this point.
+    reactor.python_env_registry[project.get_property("unittest_python_env")] \
+        .install_dependencies(project.dependencies)
 
 
 @before("run_integration_tests", only_once=True)
