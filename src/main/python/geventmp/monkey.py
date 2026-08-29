@@ -13,10 +13,11 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-import sys
 from importlib import import_module
 
 GEVENT_SAVED_MODULE_SETTINGS = "_gevent_saved_patch_all_module_settings"
+
+_RESOURCE_TRACKER = "geventmp._mp.3._mp_resource_tracker"
 
 
 def _patch_module(name,
@@ -39,34 +40,19 @@ def _patch_module(name,
                  _notify_did_subscribers=_notify_did_subscribers,
                  _call_hooks=_call_hooks)
 
-    # On Python 2, the `futures` package will install
-    # a bunch of modules with the same name as those from Python 3,
-    # such as `_thread`; primarily these just do `from thread import *`,
-    # meaning we have alternate references. If that's already been imported,
-    # we need to attempt to patch that too.
-
-    # Be sure to keep the original states matching also.
-
-    alternate_names = getattr(gevent_module, '__alternate_targets__', ())
-    from gevent.monkey._state import saved  # TODO: Add apis for these use cases.
-    for alternate_name in alternate_names:
-        alternate_module = sys.modules.get(alternate_name)
-        if alternate_module is not None and alternate_module is not target_module:
-            saved.pop(alternate_name, None)
-            patch_module(alternate_module, gevent_module, items=items,
-                         _warnings=_warnings,
-                         _notify_will_subscribers=False,
-                         _notify_did_subscribers=False,
-                         _call_hooks=False)
-            saved[alternate_name] = saved[target_module_name]
-
     return gevent_module, target_module
 
 
 def _patch_mp(will_patch_all):
     from gevent.monkey._state import saved
-    geventmp_arg = will_patch_all.will_patch_module("geventmp")
-    if geventmp_arg is None or geventmp_arg:
+
+    # `geventmp` is not one of gevent's own module names, so `patch_all` files it under
+    # the extra kwargs. `will_patch_module` only consults `patch_all_arguments`, where
+    # it can never appear, so it answered None whether `geventmp=False` was passed or
+    # nothing was passed at all, and the opt-out could never fire.
+    geventmp_arg = will_patch_all.patch_all_kwargs.get("geventmp")
+    enabled = geventmp_arg is None or bool(geventmp_arg)
+    if enabled:
         _patch_module("_mp.3._mp_spawn", _package_prefix='geventmp.')
         _patch_module("_mp.3._mp_util", _package_prefix='geventmp.')
         _patch_module("_mp.3._mp_connection", _package_prefix='geventmp.')
@@ -76,4 +62,33 @@ def _patch_mp(will_patch_all):
         _patch_module("_mp.3._mp_popen_spawn_posix", _package_prefix='geventmp.')
         _patch_module("_mp.3._mp_forkserver", _package_prefix='geventmp.')
         _patch_module("_mp.3._mp_resource_tracker", _package_prefix='geventmp.')
-    saved[GEVENT_SAVED_MODULE_SETTINGS]["geventmp"] = True
+
+    # Replayed as `patch_all(**...)` in spawned children, so the opt-out travels too.
+    saved[GEVENT_SAVED_MODULE_SETTINGS]["geventmp"] = enabled
+
+
+def _patch_mp_done(did_patch_all):
+    from sys import modules
+
+    gevent_module = modules.get(_RESOURCE_TRACKER)
+    if gevent_module is None:
+        return
+
+    from multiprocessing.resource_tracker import _resource_tracker
+
+    if _resource_tracker is not gevent_module._resource_tracker:
+        return
+
+    if not hasattr(_resource_tracker, "_write"):
+        # Older interpreters issue the non-blocking write from `_send`, outside the
+        # lock, so there is nothing to yield underneath.
+        return
+
+    # `_write` parks in the hub while `_ensure_running_and_write` holds this lock. The
+    # tracker is built during `will_patch_all`, so it was handed a native RLock, which
+    # is owned per OS thread: a second greenlet acquires it instead of waiting, and
+    # upstream mistakes the overlap for a reentrant call. `threading` is patched by the
+    # time this runs, so this lock is owned per greenlet instead.
+    from threading import RLock
+
+    _resource_tracker._lock = RLock()
